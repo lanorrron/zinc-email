@@ -57,6 +57,7 @@ const fetchDropdownOptions = async () => {
             label: item
         }));
         totalIndex.value = options.value.length
+        errorMessageListIndex.value = ""
     } catch (error: any) {
         errorMessageListIndex.value = error?.response?.data?.message || "failed list index"
     }
@@ -67,6 +68,7 @@ const fetchSearchEmails = async (params: SearchRequestType) => {
         const result: SearchResponseType = await searchEmail(params)
         emails.value = result.hits.hits.map((item) => item._source)
         totalEmail.value = result.hits.total.value
+        errorMessageSearch.value= ""
 
     } catch (error: any) {
         errorMessageSearch.value = error?.response?.data?.message || "failed to search emails"
