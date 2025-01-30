@@ -33,7 +33,7 @@ func main() {
 	}
 	cfg := config.LoadConfig()
 
-	client := zincsearch.NewZincClient(cfg.ZincSearchHost, cfg.ZincSearchUser, cfg.ZincSearchPassword, cfg.ZincSearchIndexName)
+	client := zincsearch.NewZincClient(cfg.ZincSearchHost, cfg.ZincSearchUser, cfg.ZincSearchPassword)
 	emailRepo := repository.NewEmailRepository(client)
 	emailService := service.NewEmailService(emailRepo)
 	emailHandler := handler.NewEmailHandler(emailService)

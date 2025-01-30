@@ -6,6 +6,7 @@ import (
 	"awesomeProject/internal/email/repository"
 	"awesomeProject/internal/email/service"
 	"awesomeProject/internal/zincsearch"
+	"fmt"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
@@ -26,9 +27,12 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+	var indexName = ""
+	fmt.Println("write name index")
+	fmt.Scan(&indexName)
 
 	cfg := config.LoadConfig()
-	client := zincsearch.NewZincClient(cfg.ZincSearchHost, cfg.ZincSearchUser, cfg.ZincSearchPassword, cfg.ZincSearchIndexName)
+	client := zincsearch.NewZincClient(cfg.ZincSearchHost, cfg.ZincSearchUser, cfg.ZincSearchPassword, indexName)
 	emailRepo := repository.NewEmailRepository(client)
 	emailService := service.NewEmailService(emailRepo)
 	emailHandler := handler.NewEmailHandler(emailService)

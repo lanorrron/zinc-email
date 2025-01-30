@@ -15,11 +15,10 @@ func ProcessEmailInParallel(files []string, nunGoroutines int) ([]*models.Email,
 	resultsChan := make(chan []*models.Email, nunGoroutines)
 	errorChan := make(chan error, 1)
 
-	processBatch := func(startIndex, endIndex int, goroutineID int) {
+	processBatch := func(startIndex, endIndex int) {
 		defer wg.Done()
 		var emailsBulk []*models.Email
 
-		// process the files from lots
 		for i := startIndex; i < endIndex && i < numFiles; i++ {
 			emailParsed, err := Parse(files[i])
 			if err != nil {
@@ -39,14 +38,13 @@ func ProcessEmailInParallel(files []string, nunGoroutines int) ([]*models.Email,
 			endIndex = numFiles
 		}
 		wg.Add(1)
-		go processBatch(startIndex, endIndex, i)
+		go processBatch(startIndex, endIndex)
 	}
 
 	wg.Wait()
 	close(resultsChan)
 	close(errorChan)
 
-	// collect results
 	var allEmails []*models.Email
 	for emails := range resultsChan {
 		allEmails = append(allEmails, emails...)

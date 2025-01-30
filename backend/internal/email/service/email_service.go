@@ -18,26 +18,21 @@ func NewEmailService(repo *repository.EmailRepository) *EmailService {
 
 func (s *EmailService) IndexEmailsInBulk(dir string) error {
 
-	// Read file the directory
 	files, err := utils.ReadFileFromDir(dir)
 	if err != nil {
 		return fmt.Errorf("an error occurred while reading files  %s: %s", dir, err.Error())
 
 	}
 
-	// Processing emails in parallel
 	emailsBulk, err := utils.ProcessEmailInParallel(files, 4)
 	if err != nil {
 		return fmt.Errorf("an error occurred while processing emails: %s", err.Error())
 	}
 
-	// If there are processed emails, split them into blocks of 1000 and process them.
 	if len(emailsBulk) > 0 {
 
-		// Split emails into blocks of 1000
 		chunkedEmails := chunkEmails(emailsBulk, 1000)
 
-		// Send each block to the repository for indexing
 		for _, chunk := range chunkedEmails {
 			s.repo.IndexEmailsToZinInBulk(chunk)
 		}
@@ -65,7 +60,6 @@ func (s *EmailService) SearchEmailsInZinc(query string, limit, offset int, start
 
 	var mustClauses []string
 
-	// if 'startDate' and 'endDate' are valid, add range filter
 	if startDate != "" && endDate != "" {
 		rangeFilter := fmt.Sprintf(`{
 		"range": {
@@ -79,7 +73,6 @@ func (s *EmailService) SearchEmailsInZinc(query string, limit, offset int, start
 		mustClauses = append(mustClauses, rangeFilter)
 	}
 
-	// If 'query' is not empty, add query 'query_string'
 	if query != "" {
 		queryBody := fmt.Sprintf(`{
 		"query_string": {
@@ -88,11 +81,9 @@ func (s *EmailService) SearchEmailsInZinc(query string, limit, offset int, start
 	}`, query)
 		mustClauses = append(mustClauses, queryBody)
 	} else {
-		// if 'query' is empty, use 'match_all'
 		mustClauses = append(mustClauses, `{"match_all": {}}`)
 	}
 
-	// now, build body the request
 	var mustSection string
 	if len(mustClauses) > 0 {
 		mustSection = strings.Join(mustClauses, ",")

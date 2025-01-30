@@ -3,7 +3,6 @@ package repository
 import (
 	"awesomeProject/internal/email/models"
 	"awesomeProject/internal/zincsearch"
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -34,7 +33,6 @@ func (r *EmailRepository) IndexEmailsToZinInBulk(emails []*models.Email) {
 			log.Fatalf("Error marshalling action: %v", err)
 		}
 
-		// Convert email to json and covert to bulk
 		emailJSON, err := json.Marshal(email)
 		if err != nil {
 			log.Fatalf("Error marshalling email: %v", err)
@@ -44,24 +42,13 @@ func (r *EmailRepository) IndexEmailsToZinInBulk(emails []*models.Email) {
 		bulkRequest = append(bulkRequest, append(emailJSON, '\n')...)
 	}
 
-	// build ZincSearch url
 	url := fmt.Sprintf("%s/api/_bulk", r.client.Host)
 
-	// create request http_request
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(bulkRequest))
+	resp, err := r.client.SendRequest(http.MethodPost, url, bulkRequest)
 	if err != nil {
 		log.Fatalf("error to send bulk request http_request: %s", err.Error())
 	}
 
-	// setting headers
-	req.SetBasicAuth(r.client.User, r.client.Password)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Fatalf("error to send bulk request http_request: %v", err)
-	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
@@ -80,16 +67,8 @@ func (r *EmailRepository) IndexEmailsToZinInBulk(emails []*models.Email) {
 func (r *EmailRepository) SearchEmailsInZinc(query io.Reader, nameIndex string) (*models.SearchDocumentsResponse, error) {
 
 	url := fmt.Sprintf("%s/es/%s/_search", r.client.Host, nameIndex)
-	req, err := http.NewRequest("POST", url, query)
-	if err != nil {
-		log.Fatalf("Error to create search request http_request: %v", err)
-	}
 
-	req.SetBasicAuth(r.client.User, r.client.Password)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36")
-
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := r.client.SendRequest(http.MethodPost, url, query)
 	if err != nil {
 		return nil, fmt.Errorf("error to execute request http_request: %w", err)
 	}
@@ -127,21 +106,12 @@ func (r *EmailRepository) ListIndex(req *models.ListDocumentsRequest) ([]string,
 		req.Desc,
 	)
 
-	reqHTTPRequest, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error making the GET request: %v", err)
-	}
-
-	reqHTTPRequest.SetBasicAuth(r.client.User, r.client.Password)
-	reqHTTPRequest.Header.Set("Content-Type", "application/json")
-	reqHTTPRequest.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36")
-	resp, err := http.DefaultClient.Do(reqHTTPRequest)
+	resp, err := r.client.SendRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error making the GET request: %v", err)
 	}
 	defer resp.Body.Close()
 
-	// Read the response
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("error the read body response: %v", err)
@@ -152,7 +122,6 @@ func (r *EmailRepository) ListIndex(req *models.ListDocumentsRequest) ([]string,
 		return nil, fmt.Errorf("error deserializing response %v", err)
 	}
 
-	// Extract the indices name
 	var indexNames []string
 	for _, index := range response.List {
 		if index.Name != "" {
@@ -163,18 +132,11 @@ func (r *EmailRepository) ListIndex(req *models.ListDocumentsRequest) ([]string,
 }
 
 func (r *EmailRepository) DeleteIndex(indexName string) (interface{}, error) {
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/index/%s", r.client.Host, indexName), nil)
+	resp, err := r.client.SendRequest(http.MethodDelete, indexName, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req.SetBasicAuth(r.client.User, r.client.Password)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36")
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error to execute request http_request: %v", err)
-	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
