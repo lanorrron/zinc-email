@@ -77,7 +77,11 @@ const togleTruncate = (index: number) => {
 const highlightText = (body: string, search: string | undefined): string => {
     if (!search || !body) return body;
 
-    const regex = new RegExp(`(${search})`, 'gi');
+
+    const words = search.trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0) return body;
+
+    const regex = new RegExp(`(${words.join('|')})`, 'gi');
     return body.replace(regex, `<span class="bg-purple-500 rounded-sm text-purple-500 font-bold" style="--tw-bg-opacity:0.12">$1</span>`);
 };
 

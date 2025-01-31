@@ -18,7 +18,7 @@ import type { SearchRequestType } from "../types/Email.type";
   
   export async function searchEmail(params:SearchRequestType){
     const response = await axios.post('http://localhost:3000/search',{
-        query: params.query || "",
+        query: params.query?.trim() || "",
         limit: params.limit || 50,
         offset: params.offset || 0,
         start_date: params.startDate || "",

@@ -78,7 +78,7 @@ func (s *EmailService) SearchEmailsInZinc(query string, limit, offset int, start
 		"query_string": {
 			"query": "%s"
 		}
-	}`, query)
+	}`, strings.TrimSpace(query))
 		mustClauses = append(mustClauses, queryBody)
 	} else {
 		mustClauses = append(mustClauses, `{"match_all": {}}`)
@@ -117,7 +117,7 @@ func (s *EmailService) SearchEmailsInZinc(query string, limit, offset int, start
 }`, mustSection, offset, limit)
 
 	bodyReader := strings.NewReader(requestBody)
-	response, err := s.repo.SearchEmailsInZinc(bodyReader, nameIndex)
+	response, err := s.repo.SearchEmailsInZinc(bodyReader, strings.TrimSpace(nameIndex))
 	if err != nil {
 		return nil, err
 	}
