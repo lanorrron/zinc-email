@@ -6,16 +6,23 @@
         <div v-for="(itemEmail, index) in emailsToShow" :key="index">
             <Card class="text-white flex flex-wrap">
                 <div class="grid grid-cols-1 gap-2 w-full">
-                    <p class="text-white text-xl font-mono" v-html="highlightText(formatUserName( itemEmail.from), valueToSearched)"></p>
-                    <!-- Resalta la palabra buscada en el body -->
-                    <p v-html="highlightText(itemEmail.body, valueToSearched)"
+                    <p class="text-white text-xl font-mono" v-html="highlightText( itemEmail.subject, valueToSearched)"></p>
+                     <div v-if="isTruncate[index]">
+                        <p v-html="highlightText(itemEmail.body, valueToSearched)"
                         v-bind:class="{ 'line-clamp-3': isTruncate[index], 'line-clamp-none': !isTruncate[index] }"
                         class="font-sans"></p>
+                     </div>
+                     <div v-else>
+                        <p v-for="(value, key) in itemEmail" :key="key">
+                            <strong>{{ key }}:</strong> <span v-html="highlightText(value, valueToSearched)"></span>
+                        </p>
+                     </div>
+                  
                     <div class="flex items-center gap-2 justify-between">
                         <div class="flex gap-2">
                             <div class="flex items-center gap-2">
                                 <i class="fa fa-user-o text-red-900" aria-hidden="true"></i>
-                                <p v-html="highlightText(formatUserName(itemEmail.to), valueToSearched)"></p>
+                                <p v-html="highlightText(formatUserName(itemEmail.from), valueToSearched)"></p>
                             </div>
                             <div class="flex items-center gap-2">
                                 <i class="fa fa-calendar text-red-900" aria-hidden="true"></i>
@@ -30,9 +37,7 @@
                 </div>
             </Card>
         </div>
-
         <Pagination :currentPage= "currentPage" v-bind:totalPages="totalPages" @update:currentPage="handleNavigation"></Pagination>
-
     </div>
 </template>
 
@@ -74,20 +79,30 @@ const togleTruncate = (index: number) => {
     isTruncate.value[index] = !isTruncate.value[index];
 };
 
-const highlightText = (body: string, search: string | undefined): string => {
-    if (!search || !body) return body;
-
+const highlightText = (emailOrText: EmailType | string, search: string | undefined): EmailType | string => {
+    if (!search || !emailOrText) return emailOrText;
 
     const words = search.trim().split(/\s+/).filter(Boolean);
-    if (words.length === 0) return body;
+    if (words.length === 0) return emailOrText;
 
     const regex = new RegExp(`(${words.join('|')})`, 'gi');
-    return body.replace(regex, `<span class="bg-purple-500 rounded-sm text-purple-500 font-bold" style="--tw-bg-opacity:0.12">$1</span>`);
-};
 
+    if (typeof emailOrText === 'string') {
+        return emailOrText.replace(regex, `<span class="bg-purple-500 rounded-sm text-purple-500 font-bold" style="--tw-bg-opacity:0.12">$1</span>`);
+    }
+
+    const highlightedEmail = Object.fromEntries(
+        Object.entries(emailOrText).map(([key, value]) =>
+            typeof value === 'string'
+                ? [key, value.replace(regex, `<span class="bg-purple-500 rounded-sm text-purple-500 font-bold" style="--tw-bg-opacity:0.12">$1</span>`)]
+                : [key, value]
+        )
+    );
+
+    return highlightedEmail as EmailType;
+};
 const formatUserName = (value:string)=>{
     const userName = value.split("@")[0].replace(/\./g, " ");
     return userName;
 }
-
 </script>

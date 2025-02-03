@@ -1,13 +1,14 @@
 import axios from "axios";
 import type { SearchRequestType } from "../types/Email.type";
+const BASE_URL = import.meta.env.VITE_BASE_URL
 
  export async function listIndex() {
-      const response = await axios.get('http://localhost:3000/list'); 
+      const response = await axios.get(`${BASE_URL}/list`); 
       return response.data; 
   }
 
   export async function deleteIndex(nameIndex: string){
-    const response = await axios.delete('http://localhost:3000/emails', {params:{
+    const response = await axios.delete(`${BASE_URL}/emails`, {params:{
       index_name: nameIndex
     }})
 
@@ -17,7 +18,7 @@ import type { SearchRequestType } from "../types/Email.type";
   }
   
   export async function searchEmail(params:SearchRequestType){
-    const response = await axios.post('http://localhost:3000/search',{
+    const response = await axios.post(`${BASE_URL}/search`,{
         query: params.query?.trim() || "",
         limit: params.limit || 50,
         offset: params.offset || 0,
