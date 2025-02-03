@@ -79,11 +79,11 @@ func (h *EmailHandler) ListIndex(w http.ResponseWriter, r *http.Request) {
 
 	pageNumInt, err := strconv.Atoi(pageNum)
 	if err != nil {
-		pageNumInt = 1 // Valor por defecto si no se puede convertir
+		pageNumInt = 1
 	}
 	pageSizeInt, err := strconv.Atoi(pageSize)
 	if err != nil {
-		pageSizeInt = 10 // Valor por defecto si no se puede convertir
+		pageSizeInt = 10 
 	}
 
 	request := models.ListDocumentsRequest{
@@ -102,7 +102,6 @@ func (h *EmailHandler) ListIndex(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	// JSON response
 	err = json.NewEncoder(w).Encode(result)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Error encoding response", err.Error())
