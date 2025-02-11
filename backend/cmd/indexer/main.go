@@ -21,7 +21,11 @@ func main() {
 		log.Fatal(err)
 	}
 	pprof.StartCPUProfile(cpu)
-	defer pprof.StopCPUProfile()
+	defer func ()  {
+		pprof.StopCPUProfile()
+		cpu.Close()
+	
+	}()
 
 	err = godotenv.Load()
 	if err != nil {

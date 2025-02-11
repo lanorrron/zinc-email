@@ -48,7 +48,7 @@ func Parse(filePath string) (*models.Email, error) {
 				break
 			}
 
-			bodyBuilder.WriteString(line + "\n")
+			bodyBuilder.WriteString(line + "\n") //invstigar 
 		} else {
 			parts := strings.SplitN(line, ":", 2)
 			if len(parts) == 2 {
