@@ -132,7 +132,9 @@ func (r *EmailRepository) ListIndex(req *models.ListDocumentsRequest) ([]string,
 }
 
 func (r *EmailRepository) DeleteIndex(indexName string) (interface{}, error) {
-	resp, err := r.client.SendRequest(http.MethodDelete, indexName, nil)
+	url := fmt.Sprintf("%s/api/index/%s",r.client.Host, indexName)
+	
+	resp, err := r.client.SendRequest(http.MethodDelete, url, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -24,8 +24,7 @@ func Parse(filePath string) (*models.Email, error) {
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil && err.Error() != "EOF" {
-			// Si no es EOF y hay otro error, lo manejamos
-			return nil, fmt.Errorf("Error reading line: %v", err)
+			return nil, fmt.Errorf("error reading line: %v", err)
 		}
 
 		if err != nil && err.Error() == "EOF" {
@@ -48,7 +47,7 @@ func Parse(filePath string) (*models.Email, error) {
 				break
 			}
 
-			bodyBuilder.WriteString(line + "\n") //invstigar 
+			bodyBuilder.WriteString(line + "\n")
 		} else {
 			parts := strings.SplitN(line, ":", 2)
 			if len(parts) == 2 {

@@ -6,6 +6,21 @@ import (
 	"log"
 	"sync"
 )
+func processBatch(files []string, startIndex, endIndex int, resultsChan chan<- []*models.Email, errorChan chan<-error, wg *sync.WaitGroup){
+	defer wg.Done()
+		var emailsBulk []*models.Email
+		numFiles := len(files)
+
+		for i := startIndex; i < endIndex && i < numFiles; i++ {
+			emailParsed, err := Parse(files[i])
+			if err != nil {
+				errorChan <- fmt.Errorf("error parsing email at index %d: %v", i, err)
+				return
+			}
+			emailsBulk = append(emailsBulk, emailParsed)
+		}
+		resultsChan <- emailsBulk
+}
 
 func ProcessEmailInParallel(files []string, nunGoroutines int) ([]*models.Email, error) {
 	numFiles := len(files)
@@ -15,20 +30,7 @@ func ProcessEmailInParallel(files []string, nunGoroutines int) ([]*models.Email,
 	resultsChan := make(chan []*models.Email, nunGoroutines)
 	errorChan := make(chan error, 1)
 
-	processBatch := func(startIndex, endIndex int) {
-		defer wg.Done()
-		var emailsBulk []*models.Email
 
-		for i := startIndex; i < endIndex && i < numFiles; i++ {
-			emailParsed, err := Parse(files[i])
-			if err != nil {
-				errorChan <- fmt.Errorf("Error parsing email at index %d: %v", i, err)
-				return
-			}
-			emailsBulk = append(emailsBulk, emailParsed)
-		}
-		resultsChan <- emailsBulk
-	}
 
 	for i := 0; i < nunGoroutines; i++ {
 		startIndex := i * batchSize
@@ -38,7 +40,7 @@ func ProcessEmailInParallel(files []string, nunGoroutines int) ([]*models.Email,
 			endIndex = numFiles
 		}
 		wg.Add(1)
-		go processBatch(startIndex, endIndex)
+		go processBatch( files, startIndex, endIndex, resultsChan, errorChan, &wg)
 	}
 
 	wg.Wait()

@@ -31,7 +31,7 @@ func (s *EmailService) IndexEmailsInBulk(dir string) error {
 
 	if len(emailsBulk) > 0 {
 
-		chunkedEmails := chunkEmails(emailsBulk, 10000)
+		chunkedEmails := chunkEmails(emailsBulk, 1000)
 
 		for _, chunk := range chunkedEmails {
 			s.repo.IndexEmailsToZinInBulk(chunk)
