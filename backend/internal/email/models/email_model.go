@@ -1,8 +1,12 @@
 package models
+import( 
+	"time"
+)
+	
 
 type Email struct {
 	MessageID               string `json:"message_id"`
-	Date                    string `json:"date"`
+	Date                    time.Time `json:"date"`
 	From                    string `json:"from"`
 	To                      string `json:"to"`
 	Subject                 string `json:"subject"`

@@ -99,17 +99,9 @@ func (s *EmailService) SearchEmailsInZinc(query string, limit, offset int, start
 	},
 	"from": %d,
 	"size": %d,
-	"aggs": {
-		"histogram": {
-			"date_histogram": {
-				"field": "@timestamp",
-				"fixed_interval": "30s"
-			}
-		}
-	},
 	"sort": [
 		{
-			"@timestamp": {
+			"date": {
 				"order": "desc"
 			}
 		}

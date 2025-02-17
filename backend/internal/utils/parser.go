@@ -4,8 +4,10 @@ import (
 	"awesomeProject/internal/email/models"
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 func Parse(filePath string) (*models.Email, error) {
@@ -57,7 +59,10 @@ func Parse(filePath string) (*models.Email, error) {
 				case "Message-ID":
 					email.MessageID = value
 				case "Date":
-					email.Date = value
+					email.Date,err = time.Parse("Mon, 2 Jan 2006 15:04:05 -0700 (MST)",value)
+					if err != nil {
+						log.Println(err)
+					}
 				case "From":
 					email.From = value
 				case "To":
