@@ -1,0 +1,7 @@
+ZINC_SEARCH_USER=user
+ZINC_SEARCH_PASSWORD=password
+
+# to up service whit docker-compose change to service name zincsearch
+ZINC_SEARCH_HOST=http://localhost:4080 
+EMAIL_DIRECTORY=/dir/example
+SERVER_PORT=:3000

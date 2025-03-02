@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - zincsearch
+    networks:
+      - backend
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "4000:80"
+    depends_on:
+      - backend
+
+  zincsearch:
+    image: public.ecr.aws/zinclabs/zincsearch:latest
+    container_name: zincsearch
+    user: root
+    environment:
+      - ZINC_FIRST_ADMIN_USER=admin
+      - ZINC_FIRST_ADMIN_PASSWORD=Complexpass#123
+    ports:
+      - "4080:4080"
+    volumes:
+      - ./data-email:/data-email
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
