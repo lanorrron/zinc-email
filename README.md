@@ -10,6 +10,8 @@ This is a **full-stack** email search and management system, designed to be fast
 
 - **Database**: **ZincSearch** is used as the database and search engine to index emails and make searches fast and efficient.
 
+- **Docker**: We use **Docker** and **Docker Compose** to contain the application and facilitate its deployment.
+
 This system allows fast email searches in large volumes of data, using a powerful search engine to filter, index, and retrieve information efficiently.
 
 ## Technologies Used
@@ -17,6 +19,8 @@ This system allows fast email searches in large volumes of data, using a powerfu
 - **Backend**: Go (Golang)
 - **Frontend**: Vue.js
 - **Database**: ZincSearch
+- **Containerization**: Docker
+- **Orchestration**: Docker Compose
 
 ## Features
 
